@@ -71,7 +71,7 @@ DVS128_2020 数据集已经按照上述规则将 event 打包起来，之后我�
 ![](https://latex.codecogs.com/png.latex?\large&space;r_{i,j}=\frac{t_{i,j}-t_{begin}}{t_{end}-t_{begin}})
 </div>
 
-其中 ![](https://latex.codecogs.com/png.latex?t_(i,j)) 是在 pixel![](https://latex.codecogs.com/png.latex?(i,j))上 发生的最后一个 positive 或 negative 事件的时间戳。 ![](https://latex.codecogs.com/png.latex?t_{begin}) 与 ![](https://latex.codecogs.com/png.latex?t_{end}) 分别为相对整个事件流而言发生的第一个事件的时间戳与发生的最后一个事件的时间戳。这两个 ratios 评估了在不同位置物体的生命周期。
+其中 ![](https://latex.codecogs.com/png.latex?t_{i,j}) 是在 pixel![](https://latex.codecogs.com/png.latex?(i,j))上 发生的最后一个 positive 或 negative 事件的时间戳。 ![](https://latex.codecogs.com/png.latex?t_{begin}) 与 ![](https://latex.codecogs.com/png.latex?t_{end}) 分别为相对整个事件流而言发生的第一个事件的时间戳与发生的最后一个事件的时间戳。这两个 ratios 评估了在不同位置物体的生命周期。
 
 经过上述步骤后， 被打包的多组 events 被表示成了多张一一对应的 event images 。因为 event image 与 RGB 图片有着极为相似的结构，我们就可以将 event image 送进CNN进行深度学习了。
 ### 网络结构
