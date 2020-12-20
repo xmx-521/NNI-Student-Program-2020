@@ -49,7 +49,7 @@ def train_net(net,
         Device:          {device.type}
     ''')
 
-    optimizer = optim.Adam(net.parameters(), lr=lr, weight_decay=1e-8)
+    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate,betas=(0.9,0,999),eps=1e-8,weight_decay=1e-8)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer，'max', patience=2)
     criterion = nn.CrossEntropyLoss()
 
@@ -70,8 +70,8 @@ def train_net(net,
                 imgs = imgs.to(device=device, dtype=torch.float32)
                 labels = labels.to(device=device)
 
-                prediction = net(imgs)
-                loss = criterion(prediction, labels)
+                output = net(imgs)
+                loss = criterion(output, labels)
                 epoch_loss += loss.item()
                 writer.add_scalar('Loss/train', loss.item(), global_step)
 
@@ -134,6 +134,7 @@ if __name__ == '__main__':
     device = torch.device('cuda'if torch.cuda.is_available()else 'cpu')
     logging.info(f'Using device {device}')
 
+    net = Net()
     if args.load:
         net.load_state_dict(
             torch.load(args.load, map_location=device)
