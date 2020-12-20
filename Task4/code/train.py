@@ -51,8 +51,30 @@ def train(net, device, epochs=6, batch_size=32, learning_rate=0.0001, save_cp=Tr
     ''')
 
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate,betas=(0.9,0,999),eps=1e-8,weight_decay=1e-8)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min' if net.n_classes > 1 else 'max', patience=2)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer，'max', patience=2)
+    criterion = nn.CrossEntropyLoss()
 
+    for epoch in range(epochs):
+        net.train()
+
+        epoch_loss = 0
+        with tqdm(total=n_train, desc=f'Epoch {epoch + 1}/{epochs}', unit='img') as pbar:
+            for batch in train_loader:
+                imgs = batch['image']
+                labels = batch['label']
+
+                assert imgs.shape[1] == net.n_channels, \
+                    f'Network has been defined with {net.n_channels} input channels, ' \
+                    f'but loaded images have {imgs.shape[1]} channels. Please check that ' \
+                    'the images are loaded correctly.'
+
+                imgs = imgs.to(device=device, dtype=torch.float32)
+                labels = labels.to(device=device)
+
+                output = net(imgs)
+                loss = criterion(output, labels)
+                epoch_loss += loss.item()
+                writer.add_scalar('Loss/train', loss.item(), global_step)
 
     for epoch in range(1, epochs + 1):
         net.train()
@@ -126,18 +148,7 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
 
-    # Change here to adapt to your data
-    # n_channels=3 for RGB images
-    # n_classes is the number of probabilities you want to get per pixel
-    #   - For 1 class and background, use n_classes=1
-    #   - For 2 classes, use n_classes=1
-    #   - For N > 2 classes, use n_classes=N
-    net = Net(n_channels=2, n_classes=21, bilinear=True)
-    logging.info(f'Network:\n'
-                 f'\t{net.n_channels} input channels\n'
-                 f'\t{net.n_classes} output channels (classes)\n'
-                 f'\t{"Bilinear" if net.bilinear else "Transposed conv"} upscaling')
-
+    net = Net()
     if args.load:
         net.load_state_dict(
             torch.load(args.load, map_location=device)
