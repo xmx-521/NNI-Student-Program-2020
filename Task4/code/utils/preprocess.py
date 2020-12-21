@@ -2,9 +2,9 @@ import numpy as np
 import h5py
 from tqdm import tqdm
 
-f1 = h5py.File("../data_after/train" + "_dataset.hfd5", "w")
+f1 = h5py.File("../data_after/train" + "_dataset.hdf5", "w")
 train_path = '../data_before/' + 'train' + '/'
-f2 = h5py.File("../data_after/test" + "_dataset.hfd5", "w")
+f2 = h5py.File("../data_after/test" + "_dataset.hdf5", "w")
 test_path = '../data_before/' + 'test' + '/'
 
 
