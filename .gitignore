@@ -4,3 +4,7 @@
 
 #Mac
 .DS_store
+
+#data
+data_before/
+data_after/
