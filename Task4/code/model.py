@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 def Resblock(x):
     out = x
-    conv1 = nn.Conv2d(512，512，3，1，1)
+    conv1 = nn.Conv2d(512, 512, 3, 1, 1)
     # 8*8*512,kernel=3,strides=1,计算padding=1
     out = conv1(out)
     bn1 = nn.BatchNorm2d(512)
@@ -54,4 +54,4 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        return F.log_softmax(x, dim=1)
+        return F.softmax(x, dim=1)

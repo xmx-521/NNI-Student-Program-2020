@@ -16,15 +16,15 @@ from torch.utils.tensorboard import SummaryWriter
 from utils.dataset import EVimageDataset
 from torch.utils.data import DataLoader
 
-dir_img_train = 'data/train'
-dir_img_test = 'data/test'
+dir_img_train = 'data_after/train_dataset.hdf5'
+dir_img_test = 'data_after/test_dataset.hdf5'
 dir_checkpoint = 'checkpoints/'
 
 
 def train_net(net,
               device,
-              epochs=5,
-              batch_size=1,
+              epochs=50,
+              batch_size=64,
               lr=0.001,
               save_cp=True):
 
@@ -34,7 +34,7 @@ def train_net(net,
     n_val = len(val)
     train_loader = DataLoader(
         train, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
-    val_loader = DataLoader(val, batch_size=batch_size=, shuffle=False,
+    val_loader = DataLoader(val, batch_size=batch_size, shuffle=False,
                             num_workers=8, pin_memory=True, drop_last=True)
 
     writer = SummaryWriter(
@@ -49,8 +49,9 @@ def train_net(net,
         Device:          {device.type}
     ''')
 
-    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate,betas=(0.9,0,999),eps=1e-8,weight_decay=1e-8)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer，'max', patience=2)
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr,  weight_decay=1e-8)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, 'max', patience=2)
     criterion = nn.CrossEntropyLoss()
 
     for epoch in range(epochs):
@@ -59,13 +60,7 @@ def train_net(net,
         epoch_loss = 0
         with tqdm(total=n_train, desc=f'Epoch {epoch + 1}/{epochs}', unit='img') as pbar:
             for batch in train_loader:
-                imgs = batch['image']
-                labels = batch['label']
-
-                assert imgs.shape[1] == net.n_channels, \
-                    f'Network has been defined with {net.n_channels} input channels, ' \
-                    f'but loaded images have {imgs.shape[1]} channels. Please check that ' \
-                    'the images are loaded correctly.'
+                imgs, labels = batch
 
                 imgs = imgs.to(device=device, dtype=torch.float32)
                 labels = labels.to(device=device)
@@ -84,7 +79,7 @@ def train_net(net,
 
                 pbar.update(imgs.shape[0])
                 global_step += 1
-                if global_step % (n_train // (10 * batch_size)) == 0:
+                if global_step % (n_train // (2 * batch_size)) == 0:
                     for tag, value in net.named_parameters():
                         tag = tag.replace('.', '/')
                         writer.add_histogram(
@@ -117,9 +112,9 @@ def get_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-e', '--epochs', metavar='E', type=int,
                         default=5, help='Number of epochs', dest='epochs')
-    parser.add_argument('-b', '--batch-size', metavar='B', type=int, nargs='?', default=1,
+    parser.add_argument('-b', '--batch-size', metavar='B', type=int, nargs='?', default=64,
                         help='Batch size', dest='batchsize')
-    parser.add_argument('-l', '--learning-rate', metavar='LR', type=float, nargs='?', default=0.0001,
+    parser.add_argument('-l', '--learning-rate', metavar='LR', type=float, nargs='?', default=0.001,
                         help='Learning rate', dest='lr')
     parser.add_argument('-f', '--load', dest='load', type=str, default=False,
                         help='Load model from a .pth file')

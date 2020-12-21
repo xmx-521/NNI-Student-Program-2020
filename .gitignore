@@ -8,3 +8,13 @@
 #data
 data_before/
 data_after/
+
+#runs
+runs/
+
+#__pycache__
+__pycache__/
+utils/__pycache__
+
+#checkpoints
+checkpoints/
