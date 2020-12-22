@@ -2,6 +2,12 @@
 
 ## 项目背景
 我们小组的项目主题是解决基于事件相机数据的步态识别问题。
+
+这是学校实验室的一个研究项目，现已在 CVPR 上发表论文，但我们小组认为若将其与 Microsoft NNI(Neural Network Intelligence)相结合，仍有进一步优化的可能。
+
+原论文链接：[EV-Gait: Event-based Robust Gait Recognition using Dynamic Vision Sensors](https://openaccess.thecvf.com/content_CVPR_2019/papers/Wang_EV-Gait_Event-Based_Robust_Gait_Recognition_Using_Dynamic_Vision_Sensors_CVPR_2019_paper.pdf)
+
+指导教师兼原论文第二作者：杜博闻(Bowen Du)
 ### 事件相机
 #### 简介
 
@@ -85,15 +91,30 @@ DVS128_2020 数据集已经按照上述规则将 event 打包起来，之后我�
 ### 实验计划
 
 #### 代码开发
-- 数据处理
-- 实现网络
-- 训练可视化
-- 嵌入NNI 
+我们小组从指导老师收到的代码为tensorflow代码，我们计划先将其重构为更加动态灵活的pytorch代码，并且使用pytorch代码跑出与原论文近似的准确率，之后再嵌入NNI工具，做进一步调优。
+
+##### TODOLIST:
+- [x] 数据处理
+- [x] 实现网络
+- [x] 训练可视化
+- [ ] 嵌入NNI 
+
+##### 当前进展：
+目前已将tensorflow代码重构为pytorch代码，并且在不使用去噪算法（见原论文）的情况下达到了85%左右的识别准确率，与原论文的实验结果仅差3个百分点，经过进一步的人工微调以及与NNI工具的结合应该能达到甚至超越原论文的准确率。
+
+代码请见 [code](./code)，借鉴了[Pytorch-UNet](https://github.com/milesial/Pytorch-UNet)的代码
+
+目前实验室还未对外公布数据集。
+
+
+
+pytorch代码运行的实验结果如下：
+[![rswy60.png](https://s3.ax1x.com/2020/12/22/rswy60.png)](https://imgchr.com/i/rswy60)
 
 #### 实验
-- 使用NNI优化网络
-- 使用NNI参数调优
-- 结果评估
+- [ ] 使用NNI优化网络
+- [ ] 使用NNI参数调优
+- [ ] 结果评估
 
 
 
