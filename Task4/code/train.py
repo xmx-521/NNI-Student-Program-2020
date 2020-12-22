@@ -25,7 +25,7 @@ def train_net(net,
               device,
               epochs=50,
               batch_size=64,
-              lr=0.001,
+              lr=0.01,
               save_cp=True):
 
     train = EVimageDataset(dir_img_train)
@@ -111,10 +111,10 @@ def get_args():
     parser = argparse.ArgumentParser(description='Tran the CNN on event images and labels',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-e', '--epochs', metavar='E', type=int,
-                        default=5, help='Number of epochs', dest='epochs')
+                        default=50, help='Number of epochs', dest='epochs')
     parser.add_argument('-b', '--batch-size', metavar='B', type=int, nargs='?', default=64,
                         help='Batch size', dest='batchsize')
-    parser.add_argument('-l', '--learning-rate', metavar='LR', type=float, nargs='?', default=0.001,
+    parser.add_argument('-l', '--learning-rate', metavar='LR', type=float, nargs='?', default=0.00001,
                         help='Learning rate', dest='lr')
     parser.add_argument('-f', '--load', dest='load', type=str, default=False,
                         help='Load model from a .pth file')

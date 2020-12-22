@@ -10,15 +10,12 @@ def Resblock(x):
     conv1 = nn.Conv2d(512, 512, 3, 1, 1)
     # 8*8*512,kernel=3,strides=1,计算padding=1
     out = conv1(out)
-    bn1 = nn.BatchNorm2d(512)
+
     # outchannel为512
-    out = bn1(out)
     out = F.relu(out)
     conv2 = nn.Conv2d(512, 512, 3, 1, 1)
     # 同上
     out = conv2(out)
-    bn2 = nn.BatchNorm2d(512)
-    out = bn2(out)
     return(F.relu(x+out))  # 传出激活后的值
 
 
@@ -53,5 +50,5 @@ class Net(nn.Module):
         x = x.view(-1, 8*8*512)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return F.softmax(x, dim=1)
+        x = F.relu(self.fc3(x))
+        return x
