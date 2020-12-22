@@ -12,6 +12,9 @@ data_after/
 #runs
 runs/
 
+#iterrupted model
+INTERRUPTED.pth
+
 #__pycache__
 __pycache__/
 utils/__pycache__

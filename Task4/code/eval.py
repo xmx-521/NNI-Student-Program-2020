@@ -6,7 +6,6 @@ from tqdm import tqdm
 def eval_net(net, loader, device):
     net.eval()
     n_val = len(loader)
-    print(n_val)
     correct = 0
 
     with tqdm(total=n_val, desc='Validation round', unit='batch', leave=False) as pbar:

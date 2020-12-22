@@ -12,13 +12,19 @@ def preprocess(path, f):
     for label in tqdm(range(21)):
         grp = f.create_group(str(label), "w")
         for i in tqdm(range(1, 101)):
-            image = np.zeros([2, 128, 128])
+            image = np.zeros([4, 128, 128])
             _data = np.loadtxt(path + str(label) + '/' + str(i) + '.txt')
+            min_time = (int)(_data[0, 0])
+            max_time = (int)(_data[-1, 0])
             for j in range(len(_data)):
                 if _data[j, 3] == 1:
                     image[0, (int)(_data[j, 1]), (int)(_data[j, 2])] += 1
+                    image[2, (int)(_data[j, 1]), (int)(_data[j, 2])] = (
+                        _data[j, 0]-min_time) / (max_time - min_time)
                 else:
                     image[1, (int)(_data[j, 1]), (int)(_data[j, 2])] += 1
+                    image[3, (int)(_data[j, 1]), (int)(_data[j, 2])] = (
+                        _data[j, 0]-min_time) / (max_time - min_time)
             grp.create_dataset(name=str(i), data=image)
 
 
