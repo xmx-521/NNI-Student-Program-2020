@@ -45,8 +45,10 @@
 ```sql
 SELECT COUNT(*) FROM ATOM t1 LEFT JOIN MOLECULE t2 ON t1.mol_id = t2.mol_id GROUP BY t1.mol_id
 ```
-然后这样的查询可以通过连续加入例如`sql WHERE t1.charge <= -0.392`的方式逐渐被优化。
+然后这样的查询可以通过连续加入例如` WHERE t1.charge <= -0.392`的方式逐渐被优化。
+
 然而，大多数关于多关系决策树学习的研究都使用了现存的数据库，而这样会带来许多多余的操作。可以通过一些技巧来减少这些多余的操作。特别是最近，研究者发现通过增量保存的方式可以进一步提高效率，减少冗余的操作。
+
 2015年，MIT的研究者展示了深特征合成算法并且在线上数据科学比赛中展示了其强大的效率。
 
 基于NNI的自动特征工程方法分为两步，一是特征生成探索，二是特征选择。调参器调用AutoFETuner 生成命令获取初始特征的重要性值，然后AutoFETuner会根据定义的搜索空间找到预计的特征重要性值的排名。
@@ -86,7 +88,7 @@ if __name__ == '__main__':
 +        "feature_importance":feature_imp
     })
 ```
-然后定义搜索空间，储存在json文件中，定义好配置文件`config.yml`便可开始运行实验。
+然后定义搜索空间，储存在`search_space.json`文件中，定义好配置文件`config.yml`便可开始运行实验。
 
 ### 4.2实验结果
 
@@ -95,7 +97,7 @@ if __name__ == '__main__':
 
 该数据集有286个实例，每个实例有9个属性，由南斯拉夫Institute of Oncology University Medical Canter Ljubljana 的Matjaz Zwitter和Milan Soklic所制作，属性分别为乳腺癌复发和未复发、年龄、绝经期、肿瘤大小、淋巴结个数、有无结节冒、肿瘤的恶行程度、左乳房或右乳房、所在象限以及是否经过放射性治疗。该数据集是加州大学欧文分校提出的用于机器学习的数据集，是一个常用的标准测试数据集。
 
-[Cancer数据集](https://pic.downk.cc/item/5fe09b3d3ffa7d37b39a5c88.jpg)
+![Cancer数据集](https://pic.downk.cc/item/5fe09b3d3ffa7d37b39a5c88.jpg)
 
 ### 5.2 加载数据集
 
