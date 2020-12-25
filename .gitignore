@@ -8,7 +8,7 @@
 #data
 data_before/
 data_after/
-.data
+*.data
 
 #runs
 runs/
