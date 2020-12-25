@@ -1,7 +1,5 @@
 # Task 3.1 进阶任务项目说明文档
 
-[toc]
-
 ## 团队基本信息
 
 - 团队名：电脑一带五
@@ -92,6 +90,8 @@ if __name__ == '__main__':
 
 ### 4.2实验结果
 
+![](https://pic.downk.cc/item/5fe568803ffa7d37b3062df3.png)
+
 ## 5.在Breast Cancer测试NNI的自动特征工程工具
 ### 5.1 Breast Cancer数据集简介
 
@@ -166,13 +166,7 @@ if __name__ == '__main__':
 
 ```
 
-### 5.3 单次运行结果展示
-
-```
-Final result: {"default": 0.5, "feature_importance": {"__pandas_dataframe__": {"column_order": ["feature_name", "split", "gain", "gain_percent", "split_percent", "feature_score"], "types": ["object", "int32", "float64", "float64", "float64", "float64"]}, "index": [0, 1, 2, 3, 4, 5, 6, 7, 8], "feature_name": ["age", "menopause", "tumor-size", "inv-nodes", "node-caps", "deg-malig", "breast", "breast-quad", "irradiat"], "split": [0, 0, 0, 0, 0, 0, 0, 0, 0], "gain": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "gain_percent": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN], "split_percent": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN], "feature_score": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN]}}
-```
-
-### 5.4 数据预处理
+### 5.3 数据预处理
 
 通过加载数据集，我们得到的特征可能存在如下的问题
 
@@ -183,27 +177,27 @@ Final result: {"default": 0.5, "feature_importance": {"__pandas_dataframe__": {"
 - 数据集中存在缺失值，应进行补充
 
 我们可以使用sklarn中的preprocessing库来进行与预处理工作，已解决上述问题。
-#### 5.4.1 标准化处理
+#### 5.3.1 标准化处理
 ```python
 from sklearn.preprocessing import StandardScaler
 StandardScalar().fit_transform(breast-cancer.data)#返回标准化后的数据
 ```
 
-#### 5.4.2 区间放缩法 
+#### 5.3.2 区间放缩法 
 
 ```python
 from sklearn.preprocessing import MinMaxScaler
 MinMaxScaler().fit_transform(breast-cancer.data)#返回区间放缩到[0,1]的数据
 ```
 
-#### 5.4.3 归一化处理
+#### 5.3.3 归一化处理
 
 ```python
 from sklearn.preprocessing import Normalizer
 Normalizer().fit_transform(breast-cancer.data)#返回归一化后的数据
 ```
 
-#### 5.4.4 将定性特征转换为定量特征
+#### 5.3.4 将定性特征转换为定量特征
 
 ```python
 #将label转换成0~1之间的数
@@ -211,9 +205,9 @@ from sklearn.preprocessing import LabelEncoder
 LabelEncoder().fit_transform(df['Class'])
 ```
 
-### 5.5 自动特征工程调参器
+### 5.4 自动特征工程调参器
 
-#### 5.5.1 AutoFETuner代码
+#### 5.4.1 AutoFETuner代码
 
 ```python
 # Copyright (c) Microsoft Corporation
@@ -426,5 +420,8 @@ class AutoFETuner(Tuner):
                 raise RuntimeError('feature ' + str(key) + ' Not supported now')
         return result
 ```
-### 5.6使用NNI进行自动调参的实验结果
+### 5.5实验结果
 
+```
+Final result: {"default": 0.5, "feature_importance": {"__pandas_dataframe__": {"column_order": ["feature_name", "split", "gain", "gain_percent", "split_percent", "feature_score"], "types": ["object", "int32", "float64", "float64", "float64", "float64"]}, "index": [0, 1, 2, 3, 4, 5, 6, 7, 8], "feature_name": ["age", "menopause", "tumor-size", "inv-nodes", "node-caps", "deg-malig", "breast", "breast-quad", "irradiat"], "split": [0, 0, 0, 0, 0, 0, 0, 0, 0], "gain": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "gain_percent": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN], "split_percent": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN], "feature_score": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN]}}
+```
