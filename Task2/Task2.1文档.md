@@ -4,8 +4,6 @@
 
 ---
 
-[toc]
-
 ## 团队基本信息
 
 - 团队名：电脑一带五
@@ -23,6 +21,7 @@
 ### 文档内容描述
 
 本文档为CIFAR10图像分类样例分析报告，具体内容包括
+
 - CIFAR10简介
 - 加载和初始化标准化CIFAR10训练和测试数据集 torchvision。
 - 定义卷积神经网络
@@ -62,6 +61,7 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=4,
 classes = ('plane', 'car', 'bird', 'cat',
            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 ```
+
 #### 2.1代码分析
 
 我们通过torchvision来装载数据集，使得加载CIFAR10非常容易。
@@ -92,11 +92,13 @@ imshow(torchvision.utils.make_grid(images))
 # print labels
 print(' '.join('%5s' % classes[labels[j]] for j in range(4)))
 ```
+
 [![rUmsat.md.png](https://s3.ax1x.com/2020/12/19/rUmsat.md.png)](https://imgchr.com/i/rUmsat)
 
 ```shell
 output: car  deer  frog   car
 ```
+
 ## 3.定义并初始化卷积神经网络
 
 ```shell
@@ -134,6 +136,7 @@ class Net(nn.Module):
 net = Net()
 
 ```
+
 #### 3.1代码分析
 
 首先我们要熟悉Conv2d,MaxPool2d的用法
@@ -143,6 +146,7 @@ class torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=
 class torch.nn.MaxPool2d(kernel_size, stride=None, padding=0, dilation=1, return_indices=False, ceil_mode=False)
 
 ```
+
 第一次卷积：输入的channel为3，输出的1channel为6，使用6个大小为5 x 5的卷积核，故卷积核的规模为(5 x 5) x 6；卷积操作的stride默认值为1 x 1，32 - 5 + 1 = 28，并且使用ReLU对第一次卷积后的结果进行非线性处理，输出大小为28 x 28 x 6。
 
 第一次卷积后最大池化：kernel_size为2 x 2，输出大小变为14 x 14 x 6。
@@ -169,6 +173,7 @@ import torch.optim as optim
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 ```
+
 ## 5.训练网络
 
 #### 5.1训练代码
@@ -199,6 +204,7 @@ for epoch in range(2):  # loop over the dataset multiple times
 
 print('Finished Training')
 ```
+
 #### 5.2训练结果
 
 [![rUm4qs.jpg](https://s3.ax1x.com/2020/12/19/rUm4qs.jpg)](https://imgchr.com/i/rUm4qs)
@@ -221,6 +227,7 @@ print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
 net = Net()
 net.load_state_dict(torch.load(PATH))
 ```
+
 之后看看该网络在整个数据集上的表现
 
 ```shell
@@ -237,6 +244,7 @@ with torch.no_grad():
 print('Accuracy of the network on the 10000 test images: %d %%' % (
     100 * correct / total))
 ```
+
 最后看看该网络在哪些类上具有较高正确率，而哪些类较低
 
 ```shell
@@ -257,9 +265,10 @@ with torch.no_grad():
 for i in range(10):
     print('Accuracy of %5s : %2d %%' % (
         classes[i], 100 * class_correct[i] / class_total[i]))
-    
+  
 
 ```
+
 #### 6.2训练结果
 
 [![rUmXM4.jpg](https://s3.ax1x.com/2020/12/19/rUmXM4.jpg)](https://imgchr.com/i/rUmXM4)
@@ -284,11 +293,13 @@ RuntimeError:
         The "freeze_support()" line can be omitted if the program
         is not going to be frozen to produce an executable.
 ```
+
 最后经过我们查阅相关资料，发现需要加上下述语句，才可正常运行
 
 ```shell
 if __name__ == '__main__':
 ```
+
 #### 7.1采用GPU之前的代码
 
 代码实际上就是上述各部分的组合，由于过长，上传至code文件夹。
