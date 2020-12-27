@@ -1,7 +1,5 @@
 # Task 3.1 进阶任务项目说明文档
 
-[toc]
-
 ## 团队基本信息
 
 - 团队名：电脑一带五
@@ -18,26 +16,90 @@
 
   ### 文档情况
 
-- [x] 将NNI用于特征工程
+- [x] 将NNI应用于特征工程
 
 ## 1.特征工程简介
 
 有一句话在工业界广为流传：数据和特征决定了机器学习的上界，而算法和模型只是逼近这个上限而已。特征工程便是一种最大限度地从原始数据中提取特征以供模型和算法使用的工程活动。其主要包含以下方面：
 ![](https://pic.downk.cc/item/5fe049d93ffa7d37b35181f4.png)
 
+特征是一种要在其上进行分析或预测的所有独立单元的共享的属性，任何对模型有用的属性都可以是特征。相对于属性而言，特征的意义在于在问题的语境下更容易理解，特征是可能会对解决问题有所帮助的特性。
+
+特征工程的总体过程是：
+- 测试特征
+- 决定要创建的特征
+- 创建特征
+- 检查这些特征如何运用在模型上
+- 改进特征
+- 创建新的特征
+
 其中特征处理是最为核心的部分，sklearn提供了比较完整的特征处理方法。
 
-## 2.AutoML在特征工程的应用
+## 2.自动特征工程简介
 
-基于自动机器学习的自动特征工程方法分为两步，一是特征生成探索，二是特征选择。调参器调用AutoFETuner 生成命令获取初始特征的重要性值，然后AutoFETuner会根据定义的搜索空间找到预计的特征重要性值的排名。
+自动特征工程在上世纪90年代就成了研究的重要主题，关于自动机器学习的研究大致分为两个方向：其一是使用类似决策树的监督学习算法的多关系决策树学习(MRDTL)，其二是近期使用更简单的方法的进展，例如深特征合成等。
 
-### 2.1 Breast Cancer数据集简介
+多关系决策树学习通过依次查询数据库并不断加入新子句的方式来生成特征，该算法可能以这样的形式开始：
+```sql
+SELECT COUNT(*) FROM ATOM t1 LEFT JOIN MOLECULE t2 ON t1.mol_id = t2.mol_id GROUP BY t1.mol_id
+```
+然后这样的查询可以通过连续加入例如` WHERE t1.charge <= -0.392`的方式逐渐被优化。
+
+然而，大多数关于多关系决策树学习的研究都使用了现存的数据库，而这样会带来许多多余的操作。可以通过一些技巧来减少这些多余的操作。特别是最近，研究者发现通过增量保存的方式可以进一步提高效率，减少冗余的操作。
+
+2015年，MIT的研究者展示了深特征合成算法并且在线上数据科学比赛中展示了其强大的效率。
+
+基于NNI的自动特征工程方法分为两步，一是特征生成探索，二是特征选择。调参器调用AutoFETuner 生成命令获取初始特征的重要性值，然后AutoFETuner会根据定义的搜索空间找到预计的特征重要性值的排名。
+
+## 3.自动特征工程的意义
+IBM的研究者指出，自动特征工程能够帮助数据科学家减少在探索数据上所花费的时间，并让他们能够在短时间内尝试更多的新想法。从另一个角度来看，自动特征工程让对数据科学不熟悉的非专业人士在更短的时间内以更少的精力来发掘数据的价值。
+
+## 4.简单的自动特征工程示例
+### 4.1使用nni的自动特征工程工具
+使用[Task3.1](https://github.com/SpongebBob/tabular_automl_NNI)给出的train.tiny.csv数据集，在代码中加入nni的部分
+```diff
+import nni
+
+if __name__ == '__main__':
+    file_name = 'train.tiny.csv'
+    target_name = 'Label'
+    id_index = 'Id'
+
+    # read original data from csv file
+    df = pd.read_csv(file_name)
+
+    # get parameters from tuner
++   RECEIVED_FEATURE_CANDIDATES = nni.get_next_parameter()
+
++    if 'sample_feature' in RECEIVED_FEATURE_CANDIDATES.keys():
++        sample_col = RECEIVED_FEATURE_CANDIDATES['sample_feature']
++    # return 'feature_importance' to tuner in first iteration
++    else:
++        sample_col = []
++    df = name2feature(df, sample_col)
+
+    feature_imp, val_score = lgb_model_train(df,  _epoch = 1000, target_name = target_name, id_index = id_index)
+
++    # send final result to Tuner
++    nni.report_final_result({
++        "default":val_score , 
++        "feature_importance":feature_imp
+    })
+```
+然后定义搜索空间，储存在`search_space.json`文件中，定义好配置文件`config.yml`便可开始运行实验。
+
+### 4.2实验结果
+
+![](https://pic.downk.cc/item/5fe568803ffa7d37b3062df3.png)
+
+## 5.在Breast Cancer测试NNI的自动特征工程工具
+### 5.1 Breast Cancer数据集简介
 
 该数据集有286个实例，每个实例有9个属性，由南斯拉夫Institute of Oncology University Medical Canter Ljubljana 的Matjaz Zwitter和Milan Soklic所制作，属性分别为乳腺癌复发和未复发、年龄、绝经期、肿瘤大小、淋巴结个数、有无结节冒、肿瘤的恶行程度、左乳房或右乳房、所在象限以及是否经过放射性治疗。该数据集是加州大学欧文分校提出的用于机器学习的数据集，是一个常用的标准测试数据集。
 
 ![Cancer数据集](https://pic.downk.cc/item/5fe09b3d3ffa7d37b39a5c88.jpg)
 
-### 2.2 加载数据集
+### 5.2 加载数据集
 
 ```python
 # Copyright (c) Microsoft Corporation
@@ -104,14 +166,7 @@ if __name__ == '__main__':
 
 ```
 
-### 2.3 运行结果展示
-
-```
-Final result: {"default": 0.5, "feature_importance": {"__pandas_dataframe__": {"column_order": ["feature_name", "split", "gain", "gain_percent", "split_percent", "feature_score"], "types": ["object", "int32", "float64", "float64", "float64", "float64"]}, "index": [0, 1, 2, 3, 4, 5, 6, 7, 8], "feature_name": ["age", "menopause", "tumor-size", "inv-nodes", "node-caps", "deg-malig", "breast", "breast-quad", "irradiat"], "split": [0, 0, 0, 0, 0, 0, 0, 0, 0], "gain": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "gain_percent": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN], "split_percent": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN], "feature_score": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN]}}
-
-```
-
-### 2.4 数据预处理
+### 5.3 数据预处理
 
 通过加载数据集，我们得到的特征可能存在如下的问题
 
@@ -122,27 +177,27 @@ Final result: {"default": 0.5, "feature_importance": {"__pandas_dataframe__": {"
 - 数据集中存在缺失值，应进行补充
 
 我们可以使用sklarn中的preprocessing库来进行与预处理工作，已解决上述问题。
-#### 2.4.1 标准化处理
+#### 5.3.1 标准化处理
 ```python
 from sklearn.preprocessing import StandardScaler
 StandardScalar().fit_transform(breast-cancer.data)#返回标准化后的数据
 ```
 
-#### 2.4.2 区间放缩法 
+#### 5.3.2 区间放缩法 
 
 ```python
 from sklearn.preprocessing import MinMaxScaler
 MinMaxScaler().fit_transform(breast-cancer.data)#返回区间放缩到[0,1]的数据
 ```
 
-#### 2.4.3 归一化处理
+#### 5.3.3 归一化处理
 
 ```python
 from sklearn.preprocessing import Normalizer
 Normalizer().fit_transform(breast-cancer.data)#返回归一化后的数据
 ```
 
-#### 2.4.4 将定性特征转换为定量特征
+#### 5.3.4 将定性特征转换为定量特征
 
 ```python
 #将label转换成0~1之间的数
@@ -150,9 +205,9 @@ from sklearn.preprocessing import LabelEncoder
 LabelEncoder().fit_transform(df['Class'])
 ```
 
-### 2.5 自动特征工程调参器
+### 5.4 自动特征工程调参器
 
-#### 2.5.1 AutoFETuner代码
+#### 5.4.1 AutoFETuner代码
 
 ```python
 # Copyright (c) Microsoft Corporation
@@ -365,4 +420,8 @@ class AutoFETuner(Tuner):
                 raise RuntimeError('feature ' + str(key) + ' Not supported now')
         return result
 ```
+### 5.5实验结果
 
+```
+Final result: {"default": 0.5, "feature_importance": {"__pandas_dataframe__": {"column_order": ["feature_name", "split", "gain", "gain_percent", "split_percent", "feature_score"], "types": ["object", "int32", "float64", "float64", "float64", "float64"]}, "index": [0, 1, 2, 3, 4, 5, 6, 7, 8], "feature_name": ["age", "menopause", "tumor-size", "inv-nodes", "node-caps", "deg-malig", "breast", "breast-quad", "irradiat"], "split": [0, 0, 0, 0, 0, 0, 0, 0, 0], "gain": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "gain_percent": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN], "split_percent": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN], "feature_score": [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN]}}
+```

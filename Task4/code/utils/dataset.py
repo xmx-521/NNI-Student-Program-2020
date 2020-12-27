@@ -16,7 +16,6 @@ class EVimageDataset(Dataset):
     def __init__(self, path):
         # input:the path of hdf5 file
         self.path = path
-
         # TODO:get dataset len
 
     def __len__(self):
