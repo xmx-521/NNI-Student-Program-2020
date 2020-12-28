@@ -1,0 +1,74 @@
+{
+    "experimentParameters": {
+        "id": "BWHeyyLS",
+        "revision": 444,
+        "execDuration": 4317,
+        "logDir": "E:\\nniGit_experiments\\BWHeyyLS",
+        "nextSequenceId": 11,
+        "params": {
+            "authorName": "default",
+            "experimentName": "example_mnist_pytorch",
+            "trialConcurrency": 1,
+            "maxExecDuration": 7200,
+            "maxTrialNum": 10,
+            "searchSpace": {
+                "batch_size": {
+                    "_type": "choice",
+                    "_value": [
+                        16,
+                        32,
+                        64,
+                        128
+                    ]
+                },
+                "hidden_size": {
+                    "_type": "choice",
+                    "_value": [
+                        128,
+                        256,
+                        512,
+                        1024
+                    ]
+                },
+                "lr": {
+                    "_type": "choice",
+                    "_value": [
+                        0.0001,
+                        0.001,
+                        0.01,
+                        0.1
+                    ]
+                },
+                "momentum": {
+                    "_type": "uniform",
+                    "_value": [
+                        0,
+                        1
+                    ]
+                }
+            },
+            "trainingServicePlatform": "local",
+            "tuner": {
+                "builtinTunerName": "TPE",
+                "classArgs": {
+                    "optimize_mode": "maximize"
+                },
+                "checkpointDir": "E:\\nniGit_experiments\\BWHeyyLS\\checkpoint"
+            },
+            "versionCheck": true,
+            "clusterMetaData": [
+                {
+                    "key": "codeDir",
+                    "value": "E:\\nniGit\\examples\\trials\\mnist-pytorch\\."
+                },
+                {
+                    "key": "command",
+                    "value": "python mnist.py"
+                }
+            ]
+        },
+        "startTime": 1608204821470,
+        "endTime": 1608209945855
+    },
+    "trialMessage": []
+}
