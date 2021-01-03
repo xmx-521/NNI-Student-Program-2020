@@ -89,6 +89,7 @@
 DVS128_2020 数据集已经按照上述规则将 event 打包起来，之后我们需要自行将每组打包起来的 events 转变为类似一张图片的表示，称之为 "event image" 。传统的 RGB 图像有3个R、G、B3个 channel ，而 event image 具有4个 channel ,前两个 channel 分别记录在一个像素点上 positive event 发生的次数与 negative event 发生的次数。后两个 channel 分别记录着 positive event 和 negative event 的 ratio ，它描述了时间特征。在像素点 ![](https://latex.codecogs.com/png.latex?(i,j))  上的ratio ![](https://latex.codecogs.com/png.latex?r_{i,j}) 定义为：
 
 <div align=center>
+
 ![](https://latex.codecogs.com/png.latex?\large&space;r_{i,j}=\frac{t_{i,j}-t_{begin}}{t_{end}-t_{begin}})
 </div>
 
