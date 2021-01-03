@@ -21,7 +21,9 @@
 原论文链接：[EV-Gait: Event-based Robust Gait Recognition using Dynamic Vision Sensors](https://openaccess.thecvf.com/content_CVPR_2019/papers/Wang_EV-Gait_Event-Based_Robust_Gait_Recognition_Using_Dynamic_Vision_Sensors_CVPR_2019_paper.pdf)
 
 指导教师兼原论文第二作者：杜博闻(Bowen Du)
+
 ### 事件相机
+
 #### 简介
 
 动态视觉传感器 (Dynamic Vision Sensors,DVS) 是一种受生物视觉原理的启发而产生的传感器，用于视觉信息的捕捉，又被称为事件相机 (Event Camera) 。事件相机可以捕捉到微秒级别的亮度变化以及拥有高达 140 dB 的动态范围，能够适应很多复杂苛刻的光照环境和高速场景。他在 SLAM 、机器人视觉、物体识别等众多领域与传统 RGB 相机相比，具有巨大的优势。
@@ -70,7 +72,8 @@
 设想一的详细方案请见实施方案部分。
 
 ## 实施方案
-<img src="https://pic.downk.cc/item/5fddcdfb3ffa7d37b388c09e.jpg">
+
+![](https://pic.downk.cc/item/5fe9d87f3ffa7d37b335f506.jpg)
 
 ### 数据处理
 在 Event Camera 采集 event 数据时，会得到一连串的 event 流,每个 event 以四元组 ![](https://latex.codecogs.com/png.latex?(t,x,y,p)) 存储记录,其中 ![](https://latex.codecogs.com/png.latex?t) 为 event 发生的时间戳， ![](https://latex.codecogs.com/png.latex?x) 、 ![](https://latex.codecogs.com/png.latex?y)  是 event 在2D 像素空间中发生的位置坐标， ![](https://latex.codecogs.com/png.latex?p)  是 event 的极性。
