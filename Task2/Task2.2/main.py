@@ -57,10 +57,10 @@ def prepare(args):
 
     #CHANGE:2021.3.1_____________dataloader：changing num_workers from 2 to 0
     trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=32, shuffle=True, num_workers=8)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=args["batch_size"], shuffle=True, num_workers=8)
 
     testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False, num_workers=8)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=args["batch_size"], shuffle=False, num_workers=8)
 
     #classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 

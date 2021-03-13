@@ -1,7 +1,7 @@
 {
   "lr": {
     "_type": "choice",
-    "_value": [ 0.1, 0.01, 0.001, 0.0001 ]
+    "_value": [ 0.1, 0.0001 ]
   },
   "optimizer": {
     "_type": "choice",
@@ -9,10 +9,26 @@
   },
   "epochs": {
     "_type": "choice",
-    "_value": [ 20, 40, 80 ]
+    "_value": [ 10 ]
   },
   "model": {
     "_type": "choice",
-    "_value": [ "vgg", "resnet18", "resnet34", "resnet50","resnet101","resnet152","googlenet" ]
+    "_value": [ "resnet18" ]
+  },
+  "dropout_rate": {
+    "_type": "uniform",
+    "_value": [ 0.1, 0.5 ]
+  },
+  "conv_size": {
+    "_type": "choice",
+    "_value": [ 2, 3, 5, 7 ]
+  },
+  "hidden_size": {
+    "_type": "choice",
+    "_value": [ 124, 512, 1024 ]
+  },
+  "batch_size": {
+    "_type": "choice",
+    "_value": [ 128,64 ]
   }
 }

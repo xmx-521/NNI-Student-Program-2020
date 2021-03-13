@@ -21,7 +21,7 @@ tuner:
 trial:
   command: python3 main.py
   codeDir: .
-  gpuNum: 1
+  gpuNum: 4
 localConfig:
   maxTrialNumPerGpu: 2
 
