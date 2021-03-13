@@ -1,24 +1,28 @@
-#VSCode
+#V SCode
 .vscode/
 .history/
 
-#Mac
+# Mac
 .DS_store
 
-#data
+# data
 data_before/
 data_after/
 *.data
+dataset/
 
-#runs
+# runs
 runs/
 
-#iterrupted model
+# iterrupted model
 INTERRUPTED.pth
 
-#__pycache__
+# __pycache__
 __pycache__/
 utils/__pycache__
 
-#checkpoints
+# checkpoints
 checkpoints/
+
+# test
+test.ipynb
