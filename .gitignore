@@ -10,6 +10,7 @@ data_before/
 data_after/
 *.data
 dataset/
+data/
 
 # runs
 runs/
@@ -26,3 +27,7 @@ checkpoints/
 
 # test
 test.ipynb
+test.py
+Task3/code/3.2/3.2.1/sf-crime/test.csv
+Task3/code/3.2/3.2.1/sf-crime/train.csv
+Task3/code/3.2/3.2.1/afsis-soil-properties/final_answer.csv
