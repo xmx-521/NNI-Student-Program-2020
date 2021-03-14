@@ -15,11 +15,11 @@
 - [x] Task 2
   - [x] Task 2.1
   - [x] Task 2.2
-- [ ] Task 3
+- [x] Task 3
   - [x] Task 3.1
-  - [ ] Task 3.2
-    - [ ] Task 3.2.1
-    - [ ] Task 3.2.2
+  - [x] Task 3.2
+    - [x] Task 3.2.1
+    - [x] Task 3.2.2
 - [ ] Task 4
   + [x] 项目启动报告
   + [ ] 项目中期报告
