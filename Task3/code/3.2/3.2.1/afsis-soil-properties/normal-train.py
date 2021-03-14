@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from nni.algorithms.feature_engineering.gradient_selector import FeatureGradientSelector
 from sklearn.model_selection import train_test_split
 import torch
 from sklearn.kernel_ridge import KernelRidge
@@ -57,19 +56,20 @@ if __name__ == '__main__':
         test_size=0.2,
         random_state=42)
 
-    print(XTrainCa.shape, yTrainCa.shape)
+    # print(XTrainCa.shape, yTrainCa.shape)
 
-    fgsCa = FeatureGradientSelector(verbose=1,
-                                    n_epochs=100,
-                                    learning_rate=1e-1,
-                                    shuffle=True)
-    fgsCa.fit(XTrainCa, yTrainCa)
-    print(fgsCa.get_selected_features())
-    print('\n')
+    # fgsCa = FeatureGradientSelector(verbose=1,
+    #                                 n_epochs=100,
+    #                                 learning_rate=1e-1,
+    #                                 classification=False,
+    #                                 shuffle=True)
+    # fgsCa.fit(XTrainCa, yTrainCa)
+    # print(fgsCa.get_selected_features())
+    # print('\n')
 
-    CaSelectedFeatureIndices = fgsCa.get_selected_features()
-    XTrainCa = XTrainCa.iloc[:, CaSelectedFeatureIndices]
-    XTestCa = XTestCa.iloc[:, CaSelectedFeatureIndices]
+    # CaSelectedFeatureIndices = fgsCa.get_selected_features()
+    # XTrainCa = XTrainCa.iloc[:, CaSelectedFeatureIndices]
+    # XTestCa = XTestCa.iloc[:, CaSelectedFeatureIndices]
 
     krCa = KernelRidge(alpha=0.1, kernel='polynomial', degree=7, coef0=2.5)
     krCa.fit(XTrainCa, yTrainCa)
@@ -85,20 +85,21 @@ if __name__ == '__main__':
         test_size=0.2,
         random_state=42)
 
-    print(XTrainP.shape, yTrainP.shape)
+    # print(XTrainP.shape, yTrainP.shape)
 
-    fgsP = FeatureGradientSelector(verbose=1,
-                                   n_epochs=100,
-                                   learning_rate=1e-1,
-                                   n_features=20,
-                                   shuffle=True)
-    fgsP.fit(XTrainP, yTrainP)
-    print(fgsP.get_selected_features())
-    print('\n')
+    # fgsP = FeatureGradientSelector(verbose=1,
+    #                                n_epochs=100,
+    #                                learning_rate=1e-1,
+    #                                n_features=30,
+    #                                classification=False,
+    #                                shuffle=True)
+    # fgsP.fit(XTrainP, yTrainP)
+    # print(fgsP.get_selected_features())
+    # print('\n')
 
-    PSelectedFeatureIndices = fgsP.get_selected_features()
-    XTrainP = XTrainP.iloc[:, PSelectedFeatureIndices]
-    XTestP = XTestP.iloc[:, PSelectedFeatureIndices]
+    # PSelectedFeatureIndices = fgsP.get_selected_features()
+    # XTrainP = XTrainP.iloc[:, PSelectedFeatureIndices]
+    # XTestP = XTestP.iloc[:, PSelectedFeatureIndices]
 
     krP = KernelRidge(alpha=0.1, kernel='polynomial', degree=7, coef0=2.5)
     krP.fit(XTrainP, yTrainP)
@@ -114,19 +115,20 @@ if __name__ == '__main__':
         test_size=0.2,
         random_state=42)
 
-    print(XTrainpH.shape, yTrainpH.shape)
+    # print(XTrainpH.shape, yTrainpH.shape)
 
-    fgspH = FeatureGradientSelector(verbose=1,
-                                    n_epochs=100,
-                                    learning_rate=1e-1,
-                                    shuffle=True)
-    fgspH.fit(XTrainpH, yTrainpH)
-    print(fgspH.get_selected_features())
-    print('\n')
+    # fgspH = FeatureGradientSelector(verbose=1,
+    #                                 n_epochs=100,
+    #                                 learning_rate=1e-1,
+    #                                 classification=False,
+    #                                 shuffle=True)
+    # fgspH.fit(XTrainpH, yTrainpH)
+    # print(fgspH.get_selected_features())
+    # print('\n')
 
-    pHSelectedFeatureIndices = fgspH.get_selected_features()
-    XTrainpH = XTrainpH.iloc[:, pHSelectedFeatureIndices]
-    XTestpH = XTestpH.iloc[:, pHSelectedFeatureIndices]
+    # pHSelectedFeatureIndices = fgspH.get_selected_features()
+    # XTrainpH = XTrainpH.iloc[:, pHSelectedFeatureIndices]
+    # XTestpH = XTestpH.iloc[:, pHSelectedFeatureIndices]
 
     krpH = KernelRidge(alpha=0.1, kernel='polynomial', degree=7, coef0=2.5)
     krpH.fit(XTrainpH, yTrainpH)
@@ -142,19 +144,20 @@ if __name__ == '__main__':
         test_size=0.2,
         random_state=42)
 
-    print(XTrainSOC.shape, yTrainSOC.shape)
+    # print(XTrainSOC.shape, yTrainSOC.shape)
 
-    fgsSOC = FeatureGradientSelector(verbose=1,
-                                     n_epochs=100,
-                                     learning_rate=1e-1,
-                                     shuffle=True)
-    fgsSOC.fit(XTrainSOC, yTrainSOC)
-    print(fgsSOC.get_selected_features())
-    print('\n')
+    # fgsSOC = FeatureGradientSelector(verbose=1,
+    #                                  n_epochs=100,
+    #                                  learning_rate=1e-1,
+    #                                  classification=False,
+    #                                  shuffle=True)
+    # fgsSOC.fit(XTrainSOC, yTrainSOC)
+    # print(fgsSOC.get_selected_features())
+    # print('\n')
 
-    SOCSelectedFeatureIndices = fgsSOC.get_selected_features()
-    XTrainSOC = XTrainSOC.iloc[:, SOCSelectedFeatureIndices]
-    XTestSOC = XTestSOC.iloc[:, SOCSelectedFeatureIndices]
+    # SOCSelectedFeatureIndices = fgsSOC.get_selected_features()
+    # XTrainSOC = XTrainSOC.iloc[:, SOCSelectedFeatureIndices]
+    # XTestSOC = XTestSOC.iloc[:, SOCSelectedFeatureIndices]
 
     krSOC = KernelRidge(alpha=0.1, kernel='polynomial', degree=7, coef0=2.5)
     krSOC.fit(XTrainSOC, yTrainSOC)
@@ -170,20 +173,21 @@ if __name__ == '__main__':
         test_size=0.2,
         random_state=42)
 
-    print(XTrainSand.shape, yTrainSand.shape)
+    # print(XTrainSand.shape, yTrainSand.shape)
 
-    fgsSand = FeatureGradientSelector(verbose=1,
-                                      n_epochs=100,
-                                      learning_rate=1e-1,
-                                      shuffle=True)
+    # fgsSand = FeatureGradientSelector(verbose=1,
+    #                                   n_epochs=100,
+    #                                   learning_rate=1e-1,
+    #                                   classification=False,
+    #                                   shuffle=True)
 
-    fgsSand.fit(XTrainSand, yTrainSand)
-    print(fgsSand.get_selected_features())
-    print('\n')
+    # fgsSand.fit(XTrainSand, yTrainSand)
+    # print(fgsSand.get_selected_features())
+    # print('\n')
 
-    SandSelectedFeatureIndices = fgsSand.get_selected_features()
-    XTrainSand = XTrainSand.iloc[:, SandSelectedFeatureIndices]
-    XTestSand = XTestSand.iloc[:, SandSelectedFeatureIndices]
+    # SandSelectedFeatureIndices = fgsSand.get_selected_features()
+    # XTrainSand = XTrainSand.iloc[:, SandSelectedFeatureIndices]
+    # XTestSand = XTestSand.iloc[:, SandSelectedFeatureIndices]
 
     krSand = KernelRidge(alpha=0.1, kernel='polynomial', degree=7, coef0=2.5)
     krSand.fit(XTrainSand, yTrainSand)
@@ -197,17 +201,17 @@ if __name__ == '__main__':
     test['Depth'] = pd.get_dummies(test['Depth'])
     test = test.astype(float)
 
-    testCa = test.iloc[:, CaSelectedFeatureIndices]
-    testP = test.iloc[:, PSelectedFeatureIndices]
-    testpH = test.iloc[:, pHSelectedFeatureIndices]
-    testSOC = test.iloc[:, SOCSelectedFeatureIndices]
-    testSand = test.iloc[:, SandSelectedFeatureIndices]
+    # testCa = test.iloc[:, CaSelectedFeatureIndices]
+    # testP = test.iloc[:, PSelectedFeatureIndices]
+    # testpH = test.iloc[:, pHSelectedFeatureIndices]
+    # testSOC = test.iloc[:, SOCSelectedFeatureIndices]
+    # testSand = test.iloc[:, SandSelectedFeatureIndices]
 
-    testPredCa = krCa.predict(testCa)
-    testPredP = krP.predict(testP)
-    testPredpH = krpH.predict(testpH)
-    testPredSOC = krSOC.predict(testSOC)
-    testPredSand = krSand.predict(testSand)
+    testPredCa = krCa.predict(test)
+    testPredP = krP.predict(test)
+    testPredpH = krpH.predict(test)
+    testPredSOC = krSOC.predict(test)
+    testPredSand = krSand.predict(test)
 
     sub = pd.read_csv('dataset/sample_submission.csv')
     sub['Ca'] = testPredCa
