@@ -1,3 +1,5 @@
+
+
 # Task 3.2.1 表格型数据的进阶任务项目说明文档
 
 ## 团队基本信息
@@ -368,12 +370,177 @@ for i in range(num_models):
     forest_reg_models.append((forest_reg, forest_rmse))
 ```
 
+## 3. 土壤属性预测
 
+#### 任务目标：
+
+1. 基于训练数据建立模型以准确预测土壤属性
+2. 基于NNI对数据进行特征选择，并与原模型比较经过NNI进行特征选择后的准确率
+
+#### 模型描述：
+
+土壤属性不止一个，因此该问题为multi-label问题，为了使用NNI，将multi-label问题拆解为多个回归问题分别用建模，并使用mean squared error衡量预测的准确程度
+
+#### 数据清洗与预处理
+
+无论是传统方法还是使用NNI的autoML方法，数据的清洗与预处理都是必要的
+
+先使用pandas了解训练集的基本情况
+
+``` python
+import pandas as pd
+# MARK: - Read dataset as df
+datasetAsDf = pd.read_csv('dataset/training.csv')
+datasetAsDf.info()
+```
+
+```
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1157 entries, 0 to 1156
+Columns: 3600 entries, PIDN to Sand
+dtypes: float64(3598), object(2)
+memory usage: 31.8+ MB
+```
+
+feature数量竟有接近3600列之多，而sample数量仅有稀少的1000+。
+
+不存在空值是个好消息，然而存在不为数值类型的feature，我们选择one-hot编码的方式将其转为数据类型，在此之前，先将labels与features分离开，并将labels做进一步拆解将multi-label问题转为多个回归问题。
+
+```python
+# MARK: - Split dataset into input features and labels
+datasetFeaturesAsDf = datasetAsDf.iloc[:, 1:3595]
+datasetLabelsAsDf = datasetAsDf.iloc[:, 3595:3600].astype(float)
+
+datasetCaAsDf = datasetLabelsAsDf.loc[:, 'Ca'].astype(float)
+datasetPAsDf = datasetLabelsAsDf.loc[:, 'P'].astype(float)
+datasetpHAsDf = datasetLabelsAsDf.loc[:, 'pH'].astype(float)
+datasetSOCAsDf = datasetLabelsAsDf.loc[:, 'SOC'].astype(float)
+datasetSandAsDf = datasetLabelsAsDf.loc[:, 'Sand'].astype(float)
+
+# MARK: - One-hot encode for feature Depth
+datasetFeaturesAsDf['Depth'] = pd.get_dummies(datasetFeaturesAsDf['Depth'])
+datasetFeaturesAsDf = datasetFeaturesAsDf.astype(float)
+```
+
+One-hot编码完成后，为了让训练数据与使用库函数的type与shape相适配，我们对数据的type与shape做一定转换
+
+```python
+import numpy as np
+import torch
+# MARK: - Transform df to array
+datasetFeaturesAsArray = datasetFeaturesAsDf.values
+datasetLabelsAsArray = datasetLabelsAsDf.values
+
+datasetCaAsArray = datasetCaAsDf.values
+datasetPAsArray = datasetPAsDf.values
+datasetpHAsArray = datasetpHAsDf.values
+datasetSOCAsArray = datasetSOCAsDf.values
+datasetSandAsArray = datasetSandAsDf.values
+
+# MARK: - Reshape array as Matrix
+datasetCaAsMatrix = np.matrix(datasetCaAsArray.reshape(
+    (-1, 1))).astype(float)
+datasetPAsMatrix = np.matrix(datasetPAsArray.reshape(
+    (-1, 1))).astype(float)
+datasetpHAsMatrix = np.matrix(datasetpHAsArray.reshape(
+    (-1, 1))).astype(float)
+datasetSOCAsMatrix = np.matrix(datasetSOCAsArray.reshape(
+    (-1, 1))).astype(float)
+datasetSandAsMatrix = np.matrix(datasetSandAsArray.reshape(
+    (-1, 1))).astype(float)
+```
+
+到此为止，数据的清洗与预处理基本完成
+
+#### FeatureEngineering
+
+接下来，我们将使用NNI的FeatureGradientSelector做特征工程。
+
+由于数据集的特征数非常之多，我们先不指定目标特征的数量，让NNI自主选择保留的feature数。
+
+然而这种做法还是出现了一定问题，对于'P'这个label来说，若不指定保留feature数，FeatureGradientSelector返回的特征为空列表，因此此处武断地指定n_features = 30。对其余label的处理完全一致，因此文档以对label 'Ca' 的处理为例。在FeatureGradientSelecto进行选择前，先将原始数据划分为训练集与测试集。
+
+```python
+# MARK: - NNI Feature Engineering and Kernel Ridge Regression for every target
+
+# MARK: - Ca
+XTrainCa, XTestCa, yTrainCa, yTestCa = train_test_split(
+    datasetFeaturesAsDf.copy(),
+    datasetCaAsMatrix,
+    test_size=0.2,
+    random_state=42)
+
+fgsCa = FeatureGradientSelector(verbose=1,
+                                n_epochs=100,
+                                learning_rate=1e-1,
+                                classification=False,
+                                shuffle=True)
+fgsCa.fit(XTrainCa, yTrainCa)
+CaSelectedFeatureIndices = fgsCa.get_selected_features()
+```
+
+完成特征的选择后，我们对训练集进行进一步取舍
+
+```
+XTrainCa = XTrainCa.iloc[:, CaSelectedFeatureIndices]
+XTestCa = XTestCa.iloc[:, CaSelectedFeatureIndices]
+```
+
+至此FeatureEngineering结束
+
+#### 模型训练
+
+我们使用sklearn库中的KernelRidge进行Kernel Ridge Regression，并通过mean squared error衡量模型准确率。
+
+同样以对label 'Ca' 的处理为例
+
+```python
+from sklearn.model_selection import train_test_split
+from sklearn.kernel_ridge import KernelRidge
+from sklearn.metrics import mean_squared_error
+
+krCa = KernelRidge(alpha=0.1, kernel='polynomial', degree=7, coef0=2.5)
+krCa.fit(XTrainCa, yTrainCa)
+yPredCa = krCa.predict(XTestCa)
+print(mean_squared_error(yPredCa, yTestCa))
+```
+
+#### 实验结果
+
+| Label | 使用NNI前 (MSE)     | 使用NNI后（MSE)     |
+| ----- | ------------------- | ------------------- |
+| Ca    | 0.12243475082247697 | 0.21281624866017917 |
+| P     | 0.7704961827290547  | 0.6273964529539843  |
+| pH    | 0.16336261500494445 | 0.29011283323164444 |
+| SOC   | 0.06636032308609842 | 0.06095249184385086 |
+| Sand  | 0.06972229859748705 | 0.0753824333242412  |
+
+从实验结果中可看出，使用NNI后绝部分模型准确率反而有所下降，这一点在kaggle上也有明显体现，传统方法得分排名在800/1200左右，而使用NNI后排名为1100/1200左右
+
+#### 分析与讨论
+
+实验结果有些令人惊讶，NNI效果不佳的原因总结分析后可能有以下两点：
+
+1. 对于数据特征的挖掘不够，没有把高阶数据挖掘出来供NNI选择
+
+2. 训练集的特征数过大，NNI在提取过大基数的特征时表现不佳
+
+
+
+然而实验过程中还出现了一个更加有趣的现象，那就是将FeatureGradientSelector的classification参数设置为True时，kaggle得分排名从1100/1200上涨到1000/1200，然而本任务并非分类任务，出现这种情况的具体原因仍不清楚
+
+
+
+总的来说，NNI的特征工程功能还是比较好用易用的，未来或许可以从以下几点继续改进：
+
+1. 提高文档的详细程度。文档中的API使用说明让使用者感到有点迷惑，尤其是输入数据类型的说明不够明确
+2. 通过增加参数满足使用者的某些需求。例如FeatureGradientSelector的构造函数中可以增加参数指定最小特征数
+3. FeatureGradientSelector似乎在特征数量过大时表现不佳，算法或许可以从这个方面进一步优化
 
 ## 实验结果
 
-|  Dataset   | baseline accuracy/RMSE | automl accuracy/RMSE |  dataset link|
+|  Dataset   | baseline RMSE/accuracy/MSE | automl RMSE/accuracy/MSE |  dataset link|
 |  ----  | ----  | ----  | ----  |
 | 电影票房预测：TMDB Box Office Prediction | 2.102 | 1.960                | [Link]((https://www.kaggle.com/c/tmdb-box-office-prediction/data)) |
 | 旧金山犯罪分类：San Francisco Crime Classification      |  |                      | [Link](https://www.kaggle.com/c/sf-crime/data) |
-| 土壤属性预测：Africa Soil Property Prediction Challenge ||                      | [Link](https://www.kaggle.com/c/afsis-soil-properties/data) |
+| 土壤属性预测：Africa Soil Property Prediction Challenge |0.12\|0.77\|0.16\|0.07\|0.07| 0.21\|0.63\|0.30\|0.06\|0.08 | [Link](https://www.kaggle.com/c/afsis-soil-properties/data) |

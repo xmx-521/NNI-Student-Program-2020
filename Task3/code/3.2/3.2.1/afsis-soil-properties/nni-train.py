@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from nni.algorithms.feature_engineering.gradient_selector import FeatureGradientSelector
+from nni.feature_engineering.gradient_selector import FeatureGradientSelector
 from sklearn.model_selection import train_test_split
 import torch
 from sklearn.kernel_ridge import KernelRidge
