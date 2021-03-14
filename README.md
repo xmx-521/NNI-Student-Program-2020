@@ -12,9 +12,9 @@
 ## 2. 任务完成情况
 
 - [x] Task 1
-- [ ] Task 2
+- [x] Task 2
   - [x] Task 2.1
-  - [ ] Task 2.2
+  - [x] Task 2.2
 - [ ] Task 3
   - [x] Task 3.1
   - [ ] Task 3.2
