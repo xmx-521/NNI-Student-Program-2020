@@ -9,6 +9,8 @@
 data_before/
 data_after/
 *.data
+*.csv
+*.zip
 dataset/
 data/
 
