@@ -370,6 +370,227 @@ for i in range(num_models):
     forest_reg_models.append((forest_reg, forest_rmse))
 ```
 
+## 2. 旧金山犯罪分类
+
+### 任务目标
+
+1. 通过数据训练神经网络实现旧金山市犯罪分类
+2. 使用NNI进行特征工程并与原数据训练结果进行对比
+
+### 数据处理
+
+可以观察到test set中的特征中并没有提到train set中的Descript，Resolution相关的特征，因此将这两个特征直接删除
+
+```python
+train_data.drop(['Descript','Resolution'],inplace=True,axis=1)
+```
+
+又观察到address特征的值域过于庞大，难以进行独热编码，并且与经纬度作标特征表达出的信息有一定的重合度，故直接去除
+
+```python
+train_data.drop(['Descript','Resolution'],inplace=True,axis=1)
+train_data.drop('Address',inplace=True,axis=1)
+test_data.drop('Address',inplace=True,axis=1)
+```
+
+同时对经纬度缺失的作标，使用同PdDistrict数据的经纬度平均值替代
+
+```python
+train_data.drop_duplicates(inplace=True)
+train_data.replace({'X': -120.5, 'Y': 90.0}, np.NaN, inplace=True)
+test_data.replace({'X': -120.5, 'Y': 90.0}, np.NaN, inplace=True)
+
+imp = SimpleImputer(strategy='mean')
+
+for district in train_data['PdDistrict'].unique():
+    train_data.loc[train_data['PdDistrict'] == district, ['X', 'Y']] = imp.fit_transform(
+        train_data.loc[train_data['PdDistrict'] == district, ['X', 'Y']])
+    test_data.loc[test_data['PdDistrict'] == district, ['X', 'Y']] = imp.transform(
+        test_data.loc[test_data['PdDistrict'] == district, ['X', 'Y']])
+```
+
+对星期与年月日时分进行数据化
+
+```python
+train_data['DayOfWeek'].replace(to_replace=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],value=[i for i in range(0,7)],inplace=True)
+test_data['DayOfWeek'].replace(to_replace=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],value=[i for i in range(0,7)],inplace=True)
+
+ls1=list(train_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][:4:]
+train_data['Year']=ls1 
+
+ls1=list(train_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][5:7:]
+train_data['Month']=ls1 
+
+ls1=list(train_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][8:10:]
+train_data['Day']=ls1 
+
+ls1=list(train_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][11:-6:]
+train_data['Hours']=ls1
+
+ls1=list(train_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][-5:-3:]
+train_data['Minutes']=ls1
+
+train_data.drop('Dates',axis=1,inplace=True)
+
+ls1=list(test_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][:4:]
+test_data['Year']=ls1 
+
+ls1=list(test_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][5:7:]
+test_data['Month']=ls1 
+
+ls1=list(test_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][8:10:]
+test_data['Day']=ls1 
+
+ls1=list(test_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][11:-6:]
+test_data['Hours']=ls1
+
+ls1=list(test_data['Dates'])
+for i in range(len(ls1)):
+    ls1[i]=ls1[i][-5:-3:]
+test_data['Minutes']=ls1
+
+test_data.drop('Dates',axis=1,inplace=True)
+```
+
+对PdDistrict进行独热编码
+
+```python
+dummies_train=pd.get_dummies(train_data['PdDistrict'])
+dummies_test=pd.get_dummies(test_data['PdDistrict'])
+
+train_data=pd.concat([train_data,dummies_train],axis=1)
+train_data.drop('PdDistrict',inplace=True,axis=1)
+
+test_data=pd.concat([test_data,dummies_test],axis=1)
+test_data.drop('PdDistrict',inplace=True,axis=1)
+```
+
+### 特征工程
+
+使用NNI的FeatureGradientSelector进行特征工程
+
+```python
+fgs = FeatureGradientSelector(n_features=14,classification=True,batch_size=731225)
+fgs.fit(X_train, y_train)
+res=fgs.get_selected_features()
+```
+
+尽管进行了独热编码，但是本问题的特征数还是只有18条之少，因此NNI特征工程的结果并不理想，指定挑出了14条特征，进行后续的训练
+
+### 训练数据
+
+使用原始数据的训练数据
+
+```
+Epoch 1/20
+24630/24630 - 38s - loss: 2.6556 - accuracy: 0.2157 - val_loss: 2.6149 - val_accuracy: 0.2232
+Epoch 2/20
+24630/24630 - 37s - loss: 2.5970 - accuracy: 0.2288 - val_loss: 2.6254 - val_accuracy: 0.2134
+Epoch 3/20
+24630/24630 - 36s - loss: 2.5891 - accuracy: 0.2306 - val_loss: 2.5979 - val_accuracy: 0.2255
+Epoch 4/20
+24630/24630 - 36s - loss: 2.5803 - accuracy: 0.2344 - val_loss: 2.5657 - val_accuracy: 0.2325
+Epoch 5/20
+24630/24630 - 37s - loss: 2.5752 - accuracy: 0.2355 - val_loss: 2.5645 - val_accuracy: 0.2376
+Epoch 6/20
+24630/24630 - 37s - loss: 2.5646 - accuracy: 0.2392 - val_loss: 2.5571 - val_accuracy: 0.2385
+Epoch 7/20
+24630/24630 - 37s - loss: 2.5686 - accuracy: 0.2366 - val_loss: 2.5783 - val_accuracy: 0.2322
+Epoch 8/20
+24630/24630 - 37s - loss: 2.5883 - accuracy: 0.2295 - val_loss: 2.5928 - val_accuracy: 0.2288
+Epoch 9/20
+24630/24630 - 37s - loss: 2.5911 - accuracy: 0.2306 - val_loss: 2.5897 - val_accuracy: 0.2306
+Epoch 10/20
+24630/24630 - 37s - loss: 2.5886 - accuracy: 0.2333 - val_loss: 2.5911 - val_accuracy: 0.2310
+Epoch 11/20
+24630/24630 - 37s - loss: 2.5706 - accuracy: 0.2380 - val_loss: 2.5633 - val_accuracy: 0.2383
+Epoch 12/20
+24630/24630 - 37s - loss: 2.5619 - accuracy: 0.2391 - val_loss: 2.5507 - val_accuracy: 0.2388
+Epoch 13/20
+24630/24630 - 37s - loss: 2.5674 - accuracy: 0.2382 - val_loss: 2.5648 - val_accuracy: 0.2318
+Epoch 14/20
+24630/24630 - 34s - loss: 2.5658 - accuracy: 0.2378 - val_loss: 2.5539 - val_accuracy: 0.2387
+Epoch 15/20
+24630/24630 - 35s - loss: 2.5589 - accuracy: 0.2412 - val_loss: 2.5471 - val_accuracy: 0.2418
+Epoch 16/20
+24630/24630 - 34s - loss: 2.5571 - accuracy: 0.2419 - val_loss: 2.5546 - val_accuracy: 0.2398
+Epoch 17/20
+24630/24630 - 34s - loss: 2.5548 - accuracy: 0.2430 - val_loss: 2.5462 - val_accuracy: 0.2429
+Epoch 18/20
+24630/24630 - 34s - loss: 2.5521 - accuracy: 0.2433 - val_loss: 2.5503 - val_accuracy: 0.2428
+Epoch 19/20
+24630/24630 - 34s - loss: 2.5535 - accuracy: 0.2431 - val_loss: 2.5519 - val_accuracy: 0.2422
+Epoch 20/20
+24630/24630 - 34s - loss: 2.5511 - accuracy: 0.2440 - val_loss: 2.5596 - val_accuracy: 0.2391
+```
+
+使用NNI特征工程筛选后的训练数据
+
+```
+Epoch 1/20
+24630/24630 - 34s - loss: 2.5795 - accuracy: 0.2332 - val_loss: 2.5569 - val_accuracy: 0.2387
+Epoch 2/20
+24630/24630 - 33s - loss: 2.5345 - accuracy: 0.2417 - val_loss: 2.5344 - val_accuracy: 0.2380
+Epoch 3/20
+24630/24630 - 32s - loss: 2.5277 - accuracy: 0.2424 - val_loss: 2.5181 - val_accuracy: 0.2424
+Epoch 4/20
+24630/24630 - 34s - loss: 2.5303 - accuracy: 0.2400 - val_loss: 2.5215 - val_accuracy: 0.2408
+Epoch 5/20
+24630/24630 - 32s - loss: 2.5266 - accuracy: 0.2412 - val_loss: 2.5147 - val_accuracy: 0.2407
+Epoch 6/20
+24630/24630 - 40s - loss: 2.5274 - accuracy: 0.2403 - val_loss: 2.5150 - val_accuracy: 0.2405
+Epoch 7/20
+24630/24630 - 44s - loss: 2.5328 - accuracy: 0.2381 - val_loss: 2.5457 - val_accuracy: 0.2302
+Epoch 8/20
+24630/24630 - 46s - loss: 2.5327 - accuracy: 0.2385 - val_loss: 2.5230 - val_accuracy: 0.2375
+Epoch 9/20
+24630/24630 - 31s - loss: 2.5294 - accuracy: 0.2387 - val_loss: 2.5217 - val_accuracy: 0.2380
+Epoch 10/20
+24630/24630 - 29s - loss: 2.5279 - accuracy: 0.2395 - val_loss: 2.5183 - val_accuracy: 0.2408
+Epoch 11/20
+24630/24630 - 31s - loss: 2.5273 - accuracy: 0.2398 - val_loss: 2.5222 - val_accuracy: 0.2374
+Epoch 12/20
+24630/24630 - 35s - loss: 2.5272 - accuracy: 0.2395 - val_loss: 2.5349 - val_accuracy: 0.2344
+Epoch 13/20
+24630/24630 - 34s - loss: 2.5271 - accuracy: 0.2394 - val_loss: 2.5353 - val_accuracy: 0.2355
+Epoch 14/20
+24630/24630 - 33s - loss: 2.5305 - accuracy: 0.2393 - val_loss: 2.5395 - val_accuracy: 0.2348
+Epoch 15/20
+24630/24630 - 33s - loss: 2.5458 - accuracy: 0.2354 - val_loss: 2.5613 - val_accuracy: 0.2305
+Epoch 16/20
+24630/24630 - 36s - loss: 2.5365 - accuracy: 0.2375 - val_loss: 2.5293 - val_accuracy: 0.2370
+Epoch 17/20
+24630/24630 - 33s - loss: 2.5291 - accuracy: 0.2401 - val_loss: 2.5208 - val_accuracy: 0.2395
+Epoch 18/20
+24630/24630 - 34s - loss: 2.5307 - accuracy: 0.2383 - val_loss: 2.5275 - val_accuracy: 0.2377
+Epoch 19/20
+24630/24630 - 36s - loss: 2.5281 - accuracy: 0.2393 - val_loss: 2.5189 - val_accuracy: 0.2387
+Epoch 20/20
+24630/24630 - 34s - loss: 2.5246 - accuracy: 0.2405 - val_loss: 2.5192 - val_accuracy: 0.2398
+```
+
+### 结论分析
+
+由于本问题的特征过少，因此NNI进行特征工程的空间并不大，可以看出实验的结果并不理想，未使用特征工程的原始数据训练的结果好于进行特征工程的训练数据
+
 ## 3. 土壤属性预测
 
 #### 任务目标：
@@ -542,5 +763,5 @@ print(mean_squared_error(yPredCa, yTestCa))
 |  Dataset   | baseline RMSE/accuracy/MSE | automl RMSE/accuracy/MSE |  dataset link|
 |  ----  | ----  | ----  | ----  |
 | 电影票房预测：TMDB Box Office Prediction | 2.102 | 1.960                | [Link]((https://www.kaggle.com/c/tmdb-box-office-prediction/data)) |
-| 旧金山犯罪分类：San Francisco Crime Classification      |  |                      | [Link](https://www.kaggle.com/c/sf-crime/data) |
+| 旧金山犯罪分类：San Francisco Crime Classification      | 0.2440 | 0.2405 | [Link](https://www.kaggle.com/c/sf-crime/data) |
 | 土壤属性预测：Africa Soil Property Prediction Challenge |0.12\|0.77\|0.16\|0.07\|0.07| 0.21\|0.63\|0.30\|0.06\|0.08 | [Link](https://www.kaggle.com/c/afsis-soil-properties/data) |
