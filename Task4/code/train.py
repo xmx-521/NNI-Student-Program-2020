@@ -12,6 +12,9 @@ from tqdm import tqdm
 from eval import eval_net
 from model import Net
 
+#加载nni模块
+import nni
+
 from torch.utils.tensorboard import SummaryWriter
 from utils.dataset import EVimageDataset
 from torch.utils.data import DataLoader
@@ -19,6 +22,7 @@ from torch.utils.data import DataLoader
 dir_img_train = 'data_after/train_dataset.hdf5'
 dir_img_test = 'data_after/test_dataset.hdf5'
 dir_checkpoint = 'checkpoints/'
+
 
 
 def train_net(net,
@@ -48,6 +52,23 @@ def train_net(net,
         Checkpoints:     {save_cp}
         Device:          {device.type}
     ''')
+
+    '''---------------------------------------------加入搜索空间中的optimizer---------------------------------------------
+    if args['optimizer']=='SGD':
+        #momentum weight_decay直接参照了nni_examples中的例子，待改
+        optimizer=torch.optim.SGD(net.parameters(),lr=args['lr'],momentum=0.9,weight_decay=5e-4)
+    if args['optimizer']=='Adadelta':
+        optimizer=torch.optim.Adadelta(net.parameters(),lr=args['lr'])
+    if args['optimizer']=='Adagrad':
+        optimizer=torch.optim.Adagrad(net.parameters(),lr=args['lr'])
+    if args['optimizer']=='Adam':
+        #Adam是原代码的优化器，保留源代weight_decay数值，待改
+        optimizer = torch.optim.Adam(net.parameters(), lr=args['lr'],  weight_decay=1e-8)
+    if args['optimizer']== 'Adamax':
+        optimizer = optim.Adam(net.parameters(), lr=args['lr'])
+    '''------------------------------------------------------------------------------------------------------------------
+
+
 
     optimizer = torch.optim.Adam(
         net.parameters(), lr=lr,  weight_decay=1e-8)

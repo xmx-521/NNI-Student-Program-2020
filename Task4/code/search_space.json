@@ -1,0 +1,21 @@
+{
+    "lr": {
+        "_type": "choice",
+        "_value": [ 0.1, 0.01, 0.001, 0.0001]
+    },
+
+    "optimizer": {
+        "_type": "choice",
+        "_value": [ "SGD", "Adadelta", "Adagrad", "Adam", "Adamax" ]
+    },
+
+    "batch_size": {
+        "_type": "choice",
+        "_value": [ 16, 32, 64, 128,256 ]
+    },
+
+    "epoch":{
+        "_type":"choice",
+        "_value":[50]
+    }
+}
