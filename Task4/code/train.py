@@ -12,38 +12,38 @@ from tqdm import tqdm
 from eval import eval_net
 from model import Net
 
-#加载nni模块
-import nni
-
 from torch.utils.tensorboard import SummaryWriter
 from utils.dataset import EVimageDataset
 from torch.utils.data import DataLoader
+
+import nni
 
 dir_img_train = 'data_after/train_dataset.hdf5'
 dir_img_test = 'data_after/test_dataset.hdf5'
 dir_checkpoint = 'checkpoints/'
 
 
-
-def train_net(net,
-              device,
-              epochs=50,
-              batch_size=64,
-              lr=0.01,
-              save_cp=True):
+def train_net(net, device, epochs=50, batch_size=64, lr=0.01, save_cp=True):
 
     train = EVimageDataset(dir_img_train)
     val = EVimageDataset(dir_img_test)
     n_train = len(train)
     n_val = len(val)
-    train_loader = DataLoader(
-        train, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
-    val_loader = DataLoader(val, batch_size=batch_size, shuffle=False,
-                            num_workers=8, pin_memory=True, drop_last=False)
+    train_loader = DataLoader(train,
+                              batch_size=batch_size,
+                              shuffle=True,
+                              num_workers=8,
+                              pin_memory=True)
+    val_loader = DataLoader(val,
+                            batch_size=batch_size,
+                            shuffle=False,
+                            num_workers=8,
+                            pin_memory=True,
+                            drop_last=False)
 
-    writer = SummaryWriter(
-        comment=f'LR_{lr}_BS_{batch_size}')
+    writer = SummaryWriter(comment=f'LR_{lr}_BS_{batch_size}')
     global_step = 0
+    best_acc = 0
 
     logging.info(f'''Starting training:
         Epochs:          {epochs}
@@ -53,34 +53,19 @@ def train_net(net,
         Device:          {device.type}
     ''')
 
-    '''---------------------------------------------加入搜索空间中的optimizer---------------------------------------------
-    if args['optimizer']=='SGD':
-        #momentum weight_decay直接参照了nni_examples中的例子，待改
-        optimizer=torch.optim.SGD(net.parameters(),lr=args['lr'],momentum=0.9,weight_decay=5e-4)
-    if args['optimizer']=='Adadelta':
-        optimizer=torch.optim.Adadelta(net.parameters(),lr=args['lr'])
-    if args['optimizer']=='Adagrad':
-        optimizer=torch.optim.Adagrad(net.parameters(),lr=args['lr'])
-    if args['optimizer']=='Adam':
-        #Adam是原代码的优化器，保留源代weight_decay数值，待改
-        optimizer = torch.optim.Adam(net.parameters(), lr=args['lr'],  weight_decay=1e-8)
-    if args['optimizer']== 'Adamax':
-        optimizer = optim.Adam(net.parameters(), lr=args['lr'])
-    '''------------------------------------------------------------------------------------------------------------------
-
-
-
-    optimizer = torch.optim.Adam(
-        net.parameters(), lr=lr,  weight_decay=1e-8)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, 'max', patience=2)
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=1e-8)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,
+                                                           'max',
+                                                           patience=2)
     criterion = nn.CrossEntropyLoss()
 
     for epoch in range(epochs):
         net.train()
 
         epoch_loss = 0
-        with tqdm(total=n_train, desc=f'Epoch {epoch + 1}/{epochs}', unit='img') as pbar:
+        with tqdm(total=n_train,
+                  desc=f'Epoch {epoch + 1}/{epochs}',
+                  unit='img') as pbar:
             for batch in train_loader:
                 imgs, labels = batch
 
@@ -105,12 +90,15 @@ def train_net(net,
 
                     val_score = eval_net(net, val_loader, device)
                     scheduler.step(val_score)
-                    writer.add_scalar(
-                        'learning_rate', optimizer.param_groups[0]['lr'], global_step)
+                    writer.add_scalar('learning_rate',
+                                      optimizer.param_groups[0]['lr'],
+                                      global_step)
 
-                    logging.info(
-                        'Validation Acurracy: {}'.format(val_score))
+                    logging.info('Validation Acurracy: {}'.format(val_score))
                     writer.add_scalar('Acurracy/test', val_score, global_step)
+                    if best_acc < val_score:
+                        best_acc = val_score
+                    nni.report_intermediate_result(val_score)
         if save_cp:
             try:
                 os.mkdir(dir_checkpoint)
@@ -121,19 +109,42 @@ def train_net(net,
                        dir_checkpoint + f'CP_epoch{epoch + 1}.pth')
             logging.info(f'Checkpoint {epoch + 1} saved !')
 
+    nni.report_final_result(best_acc)
     writer.close()
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description='Tran the CNN on event images and labels',
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-e', '--epochs', metavar='E', type=int,
-                        default=50, help='Number of epochs', dest='epochs')
-    parser.add_argument('-b', '--batch-size', metavar='B', type=int, nargs='?', default=50,
-                        help='Batch size', dest='batchsize')
-    parser.add_argument('-l', '--learning-rate', metavar='LR', type=float, nargs='?', default=0.000003,
-                        help='Learning rate', dest='lr')
-    parser.add_argument('-f', '--load', dest='load', type=str, default=False,
+    parser = argparse.ArgumentParser(
+        description='Tran the CNN on event images and labels',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-e',
+                        '--epochs',
+                        metavar='E',
+                        type=int,
+                        default=50,
+                        help='Number of epochs',
+                        dest='epochs')
+    parser.add_argument('-b',
+                        '--batch-size',
+                        metavar='B',
+                        type=int,
+                        nargs='?',
+                        default=50,
+                        help='Batch size',
+                        dest='batchsize')
+    parser.add_argument('-l',
+                        '--learning-rate',
+                        metavar='LR',
+                        type=float,
+                        nargs='?',
+                        default=0.000003,
+                        help='Learning rate',
+                        dest='lr')
+    parser.add_argument('-f',
+                        '--load',
+                        dest='load',
+                        type=str,
+                        default=False,
                         help='Load model from a .pth file')
 
     return parser.parse_args()
@@ -143,14 +154,13 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
                         format='%(levelname)s: %(message)s')
     args = get_args()
-    device = torch.device('cuda:1'if torch.cuda.is_available()else 'cpu')
+    nni_args = nni.get_next_parameter()
+    device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
 
     net = Net()
     if args.load:
-        net.load_state_dict(
-            torch.load(args.load, map_location=device)
-        )
+        net.load_state_dict(torch.load(args.load, map_location=device))
         logging.info(f'Model loaded from {args.load}')
 
     net.to(device=device)
@@ -158,8 +168,8 @@ if __name__ == '__main__':
     try:
         train_net(net=net,
                   epochs=args.epochs,
-                  batch_size=args.batchsize,
-                  lr=args.lr,
+                  batch_size=nni_args['batch_size'],
+                  lr=nni_args['lr'],
                   device=device)
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
