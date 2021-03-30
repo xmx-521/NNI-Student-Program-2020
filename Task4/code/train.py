@@ -1,6 +1,5 @@
 import argparse
 import logging
-import os
 import sys
 
 import numpy as np
@@ -15,6 +14,9 @@ from model import Net
 from torch.utils.tensorboard import SummaryWriter
 from utils.dataset import EVimageDataset
 from torch.utils.data import DataLoader
+
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 import nni
 
@@ -155,10 +157,10 @@ if __name__ == '__main__':
                         format='%(levelname)s: %(message)s')
     args = get_args()
     nni_args = nni.get_next_parameter()
-    device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
 
-    net = Net()
+    net = Net(dropout_rate=nni_args["dropout_rate"],hidden_size=nni_args["hidden_size"])
     if args.load:
         net.load_state_dict(torch.load(args.load, map_location=device))
         logging.info(f'Model loaded from {args.load}')
@@ -168,8 +170,8 @@ if __name__ == '__main__':
     try:
         train_net(net=net,
                   epochs=args.epochs,
-                  batch_size=nni_args['batch_size'],
-                  lr=nni_args['lr'],
+                  batch_size=nni_args["batch_size"],
+                  lr=nni_args["lr"],
                   device=device)
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
