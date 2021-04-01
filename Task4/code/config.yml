@@ -19,3 +19,7 @@ trial:
   command: python3 train.py
   codeDir: .
   gpuNum: 1
+
+localConfig:
+  useActiveGpu: true
+  maxTrialPerGpu: 1

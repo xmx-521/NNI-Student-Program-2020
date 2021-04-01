@@ -110,7 +110,7 @@ def train_net(net, device, epochs=50, batch_size=64, lr=0.01, save_cp=True):
             torch.save(net.state_dict(),
                        dir_checkpoint + f'CP_epoch{epoch + 1}.pth')
             logging.info(f'Checkpoint {epoch + 1} saved !')
-
+    #nni 上报最终结果best_acc
     nni.report_final_result(best_acc)
     writer.close()
 
@@ -156,10 +156,12 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
                         format='%(levelname)s: %(message)s')
     args = get_args()
+    #使用nni的get_next_parameter()获取一组超参组合
     nni_args = nni.get_next_parameter()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
 
+    #初始化网络，使用nni_args中获取的参数：其中的dropout_rate与hidden_size用于网络参数调整
     net = Net(dropout_rate=nni_args["dropout_rate"],hidden_size=nni_args["hidden_size"])
     if args.load:
         net.load_state_dict(torch.load(args.load, map_location=device))
@@ -167,6 +169,7 @@ if __name__ == '__main__':
 
     net.to(device=device)
 
+    #重写训练网络部分，在nni框架支持下，使用nni_args中获取的batch_size与lr
     try:
         train_net(net=net,
                   epochs=args.epochs,

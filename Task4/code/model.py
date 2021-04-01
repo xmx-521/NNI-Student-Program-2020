@@ -1,3 +1,4 @@
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -36,12 +37,12 @@ class Net(nn.Module):
         # 同上
         self.resblock1 = Resblock()
         self.resblock2 = Resblock()
-
+        #重写fc1,fc2，引入nni_args['hidden_size']
         self.fc1 = nn.Linear(8*8*512, hidden_size)
         # 全联接层
         self.fc2 = nn.Linear(hidden_size, 512)
         self.fc3 = nn.Linear(512, 21)
-
+        #重写dropout1,引入nni_args['dropout_rate']
         self.dropout1 = nn.Dropout(dropout_rate)
 
     def forward(self, x):
