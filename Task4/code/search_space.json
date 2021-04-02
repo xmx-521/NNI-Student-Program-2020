@@ -1,30 +1,66 @@
+
+//第一轮超参调优搜索空间
+//{
+//    "lr": {
+//        "_type": "uniform",
+//        "_value": [
+//            3e-7,
+//            3e-2
+//        ]
+//    },
+//    "batch_size": {
+//        "_type": "randint",
+//        "_value": [
+//            16,
+//            256
+//        ]
+//    },
+//    "dropout_rate": {
+//        "_type": "uniform",
+//        "_value": [
+//            0,
+//            0.99
+//        ]
+//    },
+//    "hidden_size": {
+//        "_type": "randint",
+//        "_value": [
+//            512,
+//            2048
+//        ]
+//    }
+//}
+
+
+
+//经过一轮调优后，根据几组识别率高的样例调整的搜索空间
 {
     "lr": {
         "_type": "uniform",
         "_value": [
-            3e-7,
-            3e-2
+            3e-3,
+            4.5e-3
         ]
     },
     "batch_size": {
         "_type": "randint",
         "_value": [
-            16,
-            256
+            115,
+            125
         ]
     },
     "dropout_rate": {
         "_type": "uniform",
         "_value": [
-            0,
-            0.99
+            0.10,
+            0.20
         ]
     },
     "hidden_size": {
         "_type": "randint",
         "_value": [
-            512,
-            2048
+            750,
+            1000
         ]
     }
 }
