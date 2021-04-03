@@ -237,12 +237,19 @@ train_net(net=net,
 #### 实验环境
 
 NNI version: 2.1
+
 NNI mode: local
+
 Client OS: Ubuntu 18.04
+
 Python version: 3.7.8
+
 PyTorch version: 1.8.1+cuda11
-Is conda/virtualenv/env used?: Yes
+
+Is conda /virtualenv /env used?: Yes
+
 Is running in Docker?: No
+
 Is GPU used?:Yes,GeForce RTX 3090*1
 
 
@@ -318,7 +325,7 @@ localConfig:
 
 [![cnKMs1.png](https://z3.ax1x.com/2021/04/03/cnKMs1.png)](https://imgtu.com/i/cnKMs1)
 
-本次实验最高准确率约为88.3%，下图蓝色曲线为原论文中准确率，可以看出经过NNI初步调参后，gait准确率几乎达到甚至略微超越了原论文的水准，然而优势并没有那么明显，因此我们
+本次实验最高准确率约为88.3%，下图蓝色曲线为原论文中准确率，可以看出经过NNI初步调参后，gait准确率几乎达到甚至略微超越了原论文的水准，然而优势并没有那么明显，因此我们根据以上的参数进行搜索空间的缩小，进行第二次超参调优
 
 [![cn3tKJ.png](https://z3.ax1x.com/2021/04/03/cn3tKJ.png)](https://imgtu.com/i/cn3tKJ)
 
