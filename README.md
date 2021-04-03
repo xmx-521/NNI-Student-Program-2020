@@ -26,5 +26,4 @@
   + [x] 项目结题报告
 
 ## 3. 补充信息
-修复了NNI docs的一个bug
-https://github.com/microsoft/nni/pull/3448
+修复了NNI docs的一个bug：https://github.com/microsoft/nni/pull/3448
