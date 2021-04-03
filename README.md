@@ -26,7 +26,5 @@
   + [x] 项目结题报告
 
 ## 3. 补充信息
-
-（若有）
-
-比如，您可以在这部分说明您对 NNI 的 contribution，并附上您的代码地址。
+修复了NNI docs的一个bug
+https://github.com/microsoft/nni/pull/3448
