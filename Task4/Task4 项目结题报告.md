@@ -237,12 +237,19 @@ train_net(net=net,
 #### 实验环境
 
 NNI version: 2.1
+
 NNI mode: local
+
 Client OS: Ubuntu 18.04
+
 Python version: 3.7.8
+
 PyTorch version: 1.8.1+cuda11
+
 Is conda /virtualenv /env used?: Yes
+
 Is running in Docker?: No
+
 Is GPU used?:Yes,GeForce RTX 3090*1
 
 
